@@ -1,0 +1,6 @@
+{"type":"system","subtype":"init","version":"1.2.3","entrypoint":"claude","gitBranch":"feature-branch","permissionMode":"allowEdits","timestamp":"2024-01-01T00:00:00.000Z","cwd":"/tmp/test-project"}
+{"type":"user","message":{"content":"This is a long conversation that needs compaction","role":"user"},"timestamp":"2024-01-01T00:00:01.000Z"}
+{"type":"assistant","message":{"model":"claude-sonnet-4-6","content":[{"type":"text","text":"Working on it."}],"usage":{"input_tokens":5000,"output_tokens":200}},"timestamp":"2024-01-01T00:00:02.000Z"}
+{"type":"system","subtype":"compact_boundary","uuid":"compact-uuid-001","sessionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee","timestamp":"2024-01-01T00:01:00.000Z","compactMetadata":{"preTokens":50000,"postTokens":5000}}
+{"type":"user","parentUuid":"compact-uuid-001","message":{"content":[{"type":"text","text":"This is the compaction summary showing what was discussed before the context was compacted. It covers the main topics of the conversation."}]},"timestamp":"2024-01-01T00:01:01.000Z"}
+{"type":"assistant","message":{"model":"claude-sonnet-4-6","content":[{"type":"text","text":"Continuing after compaction."}],"usage":{"input_tokens":500,"output_tokens":100}},"timestamp":"2024-01-01T00:01:02.000Z"}

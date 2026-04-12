@@ -1,0 +1,4 @@
+{"type":"system","subtype":"init","version":"1.2.3","entrypoint":"claude","gitBranch":"main","permissionMode":"default","timestamp":"2024-01-01T00:00:00.000Z"}
+{"type":"user","message":{"content":"Quick question","role":"user"},"timestamp":"2024-01-01T00:00:01.000Z"}
+{"type":"assistant","message":{"model":"claude-sonnet-4-6","content":[{"type":"text","text":"Here is the answer."}],"usage":{"input_tokens":100,"output_tokens":20}},"timestamp":"2024-01-01T00:00:02.000Z"}
+{"type":"result","total_cost_usd":0.0025,"timestamp":"2024-01-01T00:00:03.000Z"}

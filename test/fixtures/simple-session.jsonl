@@ -1,0 +1,5 @@
+{"type":"system","subtype":"init","version":"1.2.3","entrypoint":"claude","gitBranch":"main","permissionMode":"default","timestamp":"2024-01-01T00:00:00.000Z","cwd":"/tmp/test-project"}
+{"type":"user","message":{"content":"Please help me write a hello world script","role":"user"},"timestamp":"2024-01-01T00:00:01.000Z"}
+{"type":"assistant","message":{"model":"claude-sonnet-4-6","content":[{"type":"text","text":"I'll help you write a hello world script."},{"type":"tool_use","id":"toolu_01","name":"Write","input":{"file_path":"/tmp/hello.js","content":"console.log('hello world')"}}],"usage":{"input_tokens":100,"output_tokens":50,"cache_read_input_tokens":10}},"timestamp":"2024-01-01T00:00:02.000Z"}
+{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"toolu_01","content":"File written successfully"}]},"timestamp":"2024-01-01T00:00:03.000Z"}
+{"type":"assistant","message":{"model":"claude-sonnet-4-6","content":[{"type":"text","text":"Done! The file has been created."}],"usage":{"input_tokens":150,"output_tokens":20}},"timestamp":"2024-01-01T00:00:04.000Z"}

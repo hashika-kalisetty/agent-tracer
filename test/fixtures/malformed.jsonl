@@ -1,0 +1,5 @@
+{"type":"system","subtype":"init","version":"1.0.0","timestamp":"2024-01-01T00:00:00.000Z"}
+{"truncated_line_no_closing_brace": "this line is malformed
+{"type":"user","message":{"content":"Valid line after malformed one"},"timestamp":"2024-01-01T00:00:02.000Z"}
+
+{"type":"assistant","message":{"model":"claude-sonnet-4-6","content":[{"type":"text","text":"Response."}],"usage":{"input_tokens":50,"output_tokens":10}},"timestamp":"2024-01-01T00:00:03.000Z"}
