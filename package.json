@@ -1,6 +1,6 @@
 {
   "name": "agent-tracer",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Live trace viewer for Claude Code agent execution — shows subagent tree, tool calls, tokens, and cost in real time",
   "main": "bin/agent-tracer-daemon.js",
   "bin": {
