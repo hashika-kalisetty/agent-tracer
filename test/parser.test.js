@@ -550,8 +550,9 @@ describe('parseTranscriptStats — subscription detection', () => {
     expect(stats.costUsd).toBeCloseTo(expected, 6);
   });
 
-  it('sets isSubscription=false for normal API sessions', () => {
-    const stats = parseTranscriptStats(path.join(FIXTURES, 'simple-session.jsonl'));
+  it('sets isSubscription=false when result event has a non-zero cost', () => {
+    // with-result-cost.jsonl has total_cost_usd: 0.0025 — a real API cost
+    const stats = parseTranscriptStats(path.join(FIXTURES, 'with-result-cost.jsonl'));
     expect(stats.isSubscription).toBe(false);
   });
 });
