@@ -1,7 +1,7 @@
-# agent-tracer
+# agent-trace
 
 A browser-based trace viewer designed to provide deep visibility into Claude Code agents and commands. 
-agent-tracer offers a live, interactive view of agent hierarchies, subagents, tool calls, token usage, and cost as Claude Code operates. 
+Agent-tracer offers a live, interactive view of agent hierarchies, subagents, tool calls, token usage, and cost as Claude Code operates. 
 Sessions are automatically persisted across restarts, enabling seamless inspection and analysis of agent activity over time.
 
 ## Requirements
@@ -135,6 +135,68 @@ pkill -f agent-tracer-daemon; node bin/agent-tracer-daemon.js
 
 Then hard-refresh the browser (Cmd+Shift+R / Ctrl+Shift+R) to load the updated UI. Session history is persisted in SQLite and survives restarts.
 
+## Screenshots
+
+### Trace tab — live session view
+<img src="public/assets/screenshots/trace-tab.png" width="700"/>
+
+Sessions grouped by date in the left panel, with every tool call listed in order beneath each session. The header shows running agents, tool calls, tokens, and cost. Selecting any session or tool call opens the full input, output, and the complete conversation thread between user and Claude in the right panel.
+
+### History tab — past sessions
+<img src="public/assets/screenshots/history-tab.png" width="700"/>
+
+All past sessions in one place. The middle panel lists every agent that ran in a session with its prompt and actions. The right panel shows the full Claude conversation history including tool calls and results. Permission mode is shown as a badge on each session row.
+
+### Agent graph — subagent hierarchy
+<img src="public/assets/screenshots/agent-graph.png" width="700"/>
+
+The Agent Graph button opens a visual tree of the full subagent hierarchy for the selected session. The left panel shows session metadata  like status, duration, cost, permission mode, and token breakdown. The graph renders each spawned subagent as a node so the structure of a complex multi-agent run is immediately clear.
+
+### Agent detail — subagent prompt and input
+<img src="public/assets/screenshots/agent-prompt-definition.png" width="700"/>
+
+Clicking any agent row reveals the full prompt Claude Code used to spawn it, the input payload, status, and duration. The prompt is fully readable and copyable useful for auditing exactly what instructions a subagent was given.
+
+### Context compaction
+<img src="public/assets/screenshots/context-summary.png" width="700"/>
+
+Compaction events appear inline in the session tree. Selecting one opens the full compaction summary — everything Claude decided to carry forward when the context limit was hit or `/compact` was used. No blind spots in long sessions.
+
+### Permissions overview
+<img src="public/assets/screenshots/permissions-overview.png" width="700"/>
+
+The top bar surfaces risk signals at a glance: bypass-mode sessions, destructive commands, and active hooks. Below that: permission mode, file access scope, MCP servers, allowed/denied rules, active plugins, and environment variables with API keys masked.
+
+### Packages, plugins, and MCP servers
+<img src="public/assets/screenshots/npm%20packages.png" width="700"/>
+
+Lists every npm package in the project with its installed version, active Claude Code plugins, and connected MCP servers — pulled from the working directory and settings at session time. Useful for confirming exactly what was in the environment when a session ran.
+
+### Permission decisions and hook activity
+<img src="public/assets/screenshots/permissions-decisions.png" width="700"/>
+
+A full log of every permission decision Claude made which tool calls were allowed and the exact path or command involved, with timestamps. The Hook Activity section shows each hook type (PreToolUse, PostToolUse, Stop, and others), how many times it fired, and when it last triggered.
+
+### Hooks configured and bypass-mode sessions
+<img src="public/assets/screenshots/bypass-mode-hooks.png" width="700"/>
+
+Every hook registered for agent-trace is listed with its full curl command for verification. Below that, every session that ran in `bypassPermissions` mode is logged so there is always a record of when Claude operated without guardrails.
+
+### Destructive commands in the trace view
+<img src="public/assets/screenshots/dangerous-commands.png" width="700"/>
+
+Destructive Bash commands `rm -rf`, force pushes, file overwrites — are flagged in red directly in the trace tree. Dangerous operations are visible inline without having to dig into individual tool call outputs.
+
+### Bash audit, sensitive files, and network requests
+<img src="public/assets/screenshots/bash-audit-network-requests.png" width="700"/>
+
+The security audit panel in one scroll: sensitive file accesses at the top, the full Bash command history with destructive commands highlighted in red, and every external network request Claude made logged below with domain and timestamp.
+
+### Blocked actions and tool usage stats
+<img src="public/assets/screenshots/blocked-actions-tool-stats.png" width="700"/>
+
+A master list of every action Claude was denied, with full context on what was blocked and when. Below that, tool usage stats across all sessions call counts and total time per tool so you can see at a glance where Claude spent its time.
+
 ## How it works
 
 Claude Code fires lifecycle hooks (`PreToolUse`, `PostToolUse`, `Stop`, `SessionStart`, `SubagentStop`, and others) before and after each tool call and session event. The daemon receives these as HTTP POST requests on `localhost:4243`, stores them in SQLite, and pushes live updates to the browser over SSE (Server-Sent Events).
@@ -175,6 +237,14 @@ PORT=4244 node bin/agent-tracer-daemon.js
 AGENT_TRACER_DB=/tmp/test.db node bin/agent-tracer-daemon.js
 ```
 
+**CLI flags**
+
+| Flag | Description |
+|------|-------------|
+| `--install` | Install hooks into `~/.claude/settings.json` |
+| `--status` | Check whether the daemon is running on the configured port |
+| `--help` | Print usage and available flags |
+
 ## Running tests
 
 ```bash
@@ -190,3 +260,42 @@ Token costs are calculated from the transcript files in `~/.claude/projects/`. P
 **Subscription plans (Claude Max / Pro):** Claude Code does not report a cost figure in transcripts for subscription users. When tokens are present but no cost is reported, agent-trace detects this as a subscription session and displays an API-equivalent estimate — what the same token usage would cost on the pay-as-you-go API — labelled `sub`. This is not what you are charged; your subscription covers usage at a flat rate.
 
 The header totals sum root sessions only — each root already includes its subagents recursively, so summing all nodes would double-count.
+
+## Troubleshooting
+
+**Session doesn't appear in the UI**
+
+Sessions only appear once the daemon receives a hook event. Make sure:
+1. The daemon is running (`curl http://localhost:4243/health` should return `{"ok":true,...}`)
+2. Hooks are installed — run `node bin/agent-tracer-daemon.js --install` then restart Claude Code
+3. The Claude session was started *after* the hooks were installed — hooks are read at Claude startup, so existing sessions need to be restarted to pick up new hook config
+
+To verify hooks are firing from a terminal, run:
+```bash
+echo '{"hook_event_name":"SessionStart","session_id":"aaaabbbb-cccc-dddd-eeee-ffffaaaabbbb"}' \
+  | curl -s -X POST http://localhost:4243/hook -H 'Content-Type: application/json' -d @-
+# Should return: {"ok":true}
+```
+
+**`claude` command not found / native installation not in PATH**
+
+Claude Code is installed to `~/.local/bin`. If your shell can't find it, add it to your PATH:
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
+# For bash:
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+```
+This is required in every terminal where you run Claude — without it, hooks won't fire and sessions won't appear.
+
+If you're running as `root` (e.g. `sudo su`) and see `No such file or directory` for `.zshrc`, run `exit` to return to your regular user shell. Avoid running Claude Code as root — the PATH won't include `~/.local/bin`, hooks won't fire, and sessions won't appear in the UI.
+
+**Hooks installed but session still missing**
+
+If `--install` was run but sessions still don't appear, check that the hooks in `~/.claude/settings.json` point to the correct port (`4243` by default). If you changed `PORT`, re-run `--install` with the same port set:
+```bash
+PORT=4244 node bin/agent-tracer-daemon.js --install
+```
+
+**UI not updating / SSE disconnecting**
+
+Hard-refresh the browser (`Cmd+Shift+R` / `Ctrl+Shift+R`) to reconnect the SSE stream. If updates are still slow, check that the daemon is running and that no firewall or proxy is blocking `localhost:4243`.
