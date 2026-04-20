@@ -7,7 +7,7 @@ A browser-based trace viewer designed to provide deep visibility into Claude Cod
 Agent-tracer offers a live, interactive view of agent hierarchies, subagents, tool calls, token usage, and cost as Claude Code operates. 
 Sessions are automatically persisted across restarts, enabling seamless inspection and analysis of agent activity over time.
 
-<video src="assets/demo/agent_tracer_demo_1.mov" controls width="100%"></video>
+<video src="public/assets/demo/agent_tracer_demo.mp4" controls width="100%"></video>
 
 ## Requirements
 
