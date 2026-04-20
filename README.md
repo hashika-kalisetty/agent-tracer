@@ -1,8 +1,13 @@
 # agent-tracer
 
+[![npm](https://img.shields.io/npm/v/agent-tracer)](https://www.npmjs.com/package/agent-tracer)
+[![GitHub](https://img.shields.io/badge/GitHub-hashika--kalisetty%2Fagent--tracer-blue?logo=github)](https://github.com/hashika-kalisetty/agent-tracer)
+
 A browser-based trace viewer designed to provide deep visibility into Claude Code agents and commands. 
 Agent-tracer offers a live, interactive view of agent hierarchies, subagents, tool calls, token usage, and cost as Claude Code operates. 
 Sessions are automatically persisted across restarts, enabling seamless inspection and analysis of agent activity over time.
+
+<video src="assets/demo/agent_tracer_demo_1.mov" controls width="100%"></video>
 
 ## Requirements
 
