@@ -1,4 +1,4 @@
-# agent-trace
+# agent-tracer
 
 A browser-based trace viewer designed to provide deep visibility into Claude Code agents and commands. 
 Agent-tracer offers a live, interactive view of agent hierarchies, subagents, tool calls, token usage, and cost as Claude Code operates. 
