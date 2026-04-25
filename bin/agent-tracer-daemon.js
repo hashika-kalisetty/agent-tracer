@@ -196,14 +196,20 @@ const server = http.createServer((req, res) => {
     });
     res.write(`data: ${store.serializeTree()}\n\n`);
     clients.push(res);
-    const hb = setInterval(() => { try { res.write(': heartbeat\n\n'); } catch { clearInterval(hb); } }, 3000);
+    const hb = setInterval(() => {
+      try { res.write(': heartbeat\n\n'); } catch {
+        clearInterval(hb);
+        const i = clients.indexOf(res);
+        if (i >= 0) clients.splice(i, 1);
+      }
+    }, 3000);
     req.on('close', () => { clearInterval(hb); const i = clients.indexOf(res); if (i >= 0) clients.splice(i, 1); });
     return;
   }
 
   // sessions list
   if (req.url === '/api/sessions') {
-    const rows = stmts.listRootSessions.all();
+    const rows = stmts.listRootSessions.all().filter(r => !store.hiddenSessions.has(r.id));
     res.writeHead(200, { 'Content-Type': 'application/json', ...corsHeaders(req) });
     res.end(JSON.stringify(rows));
     return;
@@ -235,6 +241,26 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // hide session (UI-only, no DB/file changes)
+  const hideMatch = req.url.match(/^\/api\/sessions\/([^/]+)\/hide$/);
+  if (hideMatch && req.method === 'POST') {
+    const sid = decodeURIComponent(hideMatch[1]);
+    store.hideSession(sid);
+    res.writeHead(200, { 'Content-Type': 'application/json', ...corsHeaders(req) });
+    res.end('{"ok":true}');
+    return;
+  }
+
+  // delete session permanently (drops all DB rows for the session and its descendants)
+  const deleteMatch = req.url.match(/^\/api\/sessions\/([^/]+)\/delete$/);
+  if (deleteMatch && req.method === 'POST') {
+    const sid = decodeURIComponent(deleteMatch[1]);
+    const ok = store.deleteSession(sid);
+    res.writeHead(ok ? 200 : 500, { 'Content-Type': 'application/json', ...corsHeaders(req) });
+    res.end(JSON.stringify({ ok }));
+    return;
+  }
+
   // single session
   const sessionMatch = req.url.match(/^\/api\/sessions\/([^/]+)$/);
   if (sessionMatch) {
@@ -245,6 +271,17 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json', ...corsHeaders(req) });
     res.end(JSON.stringify(data));
     return;
+  }
+
+  // Strip system-injected XML tags from user messages
+  function stripSystemTags(text) {
+    if (!text || typeof text !== 'string') return text;
+    // Remove block-level tags with all their content
+    let cleaned = text.replace(/<(?:system-reminder|local-command-caveat|auto-memory|antml:thinking)[^>]*>[\s\S]*?<\/(?:system-reminder|local-command-caveat|auto-memory|antml:thinking)>/g, '');
+    // Remove remaining opening/closing/self-closing system tags
+    cleaned = cleaned.replace(/<\/?(?:system-reminder|local-command-caveat|command-name|command-args|command-message|local-command-stdout|local-command-stderr|antml:thinking|antml:thinking_mode|antml:reasoning_effort|user-prompt-submit-hook|command-output|tool-use-prompt|context-window-summary|search-results|attached-files|environment-info|claude-md|currentDate|auto-memory)(?:\s[^>]*)?>/g, '');
+    // Collapse excess whitespace left behind
+    return cleaned.replace(/\n{3,}/g, '\n\n').trim();
   }
 
   // conversation thread (async)
@@ -277,11 +314,13 @@ const server = http.createServer((req, res) => {
               if (obj.parentUuid && compactUuids.has(obj.parentUuid)) continue;
               const content = obj.message.content;
               if (typeof content === 'string') {
-                if (content.length > 2) messages.push({ role: 'user', text: content.slice(0, 20000), timestamp: ts });
+                const cleaned = stripSystemTags(content);
+                if (cleaned.length > 2) messages.push({ role: 'user', text: cleaned.slice(0, 20000), timestamp: ts });
               } else if (Array.isArray(content)) {
                 for (const b of content) {
                   if (b.type === 'text' && b.text?.length > 2) {
-                    messages.push({ role: 'user', text: String(b.text).slice(0, 20000), timestamp: ts });
+                    const cleaned = stripSystemTags(String(b.text));
+                    if (cleaned.length > 2) messages.push({ role: 'user', text: cleaned.slice(0, 20000), timestamp: ts });
                   } else if (b.type === 'tool_result') {
                     const txt = Array.isArray(b.content)
                       ? b.content.filter(x => x.type === 'text').map(x => x.text).join('\n')
@@ -554,6 +593,22 @@ const server = http.createServer((req, res) => {
   if (req.url === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ ok: true, sessions: sessions.size, port: PORT }));
+    return;
+  }
+
+  // serve risk.js
+  if (req.method === 'GET' && req.url === '/risk.js') {
+    const riskCandidates = [
+      path.join(os.homedir(), 'Library', 'Application Support', 'agent-tracer', 'public', 'risk.js'),
+      path.join(__dirname, '..', 'public', 'risk.js'),
+    ];
+    const riskPath = riskCandidates.find(p => fs.existsSync(p));
+    if (!riskPath) { res.writeHead(404); res.end('risk.js not found'); return; }
+    fs.readFile(riskPath, (err, data) => {
+      if (err) { res.writeHead(500); res.end('read error'); return; }
+      res.writeHead(200, { 'Content-Type': 'application/javascript', 'Cache-Control': 'no-store' });
+      res.end(data);
+    });
     return;
   }
 

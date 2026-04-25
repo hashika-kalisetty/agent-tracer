@@ -222,6 +222,53 @@
   .agent-label { font-size: 12px; font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
 
   .agent-meta { display: flex; align-items: center; gap: 5px; flex-shrink: 0; margin-left: 6px; }
+
+  /* Hide button — visible on hover */
+  .hide-btn {
+    font-size: 10px; color: var(--dim); cursor: pointer;
+    opacity: 0; transition: opacity 0.15s;
+    padding: 2px 4px; border-radius: 3px; flex-shrink: 0;
+    line-height: 1;
+  }
+  .hide-btn:hover { color: var(--red); background: rgba(248,81,73,0.15); }
+  .agent-row:hover .hide-btn,
+  .history-session:hover .hide-btn { opacity: 1; }
+
+  /* ── Delete-confirm modal ── */
+  #delete-confirm {
+    display: none;
+    position: fixed; inset: 0; z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  #delete-confirm.open { display: flex; }
+  .dc-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.5); }
+  .dc-panel {
+    position: relative; z-index: 1;
+    width: 380px; max-width: calc(100vw - 32px);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 18px 20px 16px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+    animation: dcIn 0.12s ease;
+  }
+  @keyframes dcIn { from{transform:translateY(-6px);opacity:0} to{transform:none;opacity:1} }
+  .dc-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .dc-body { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 14px; }
+  .dc-sid { font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace; font-size: 11px; color: var(--dim); }
+  .dc-actions { display: flex; flex-direction: column; gap: 6px; }
+  .dc-btn {
+    text-align: left; padding: 8px 10px; border-radius: 5px;
+    background: var(--surface2); border: 1px solid var(--border-dim);
+    color: var(--text); font-size: 12px; cursor: pointer;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .dc-btn:hover { background: var(--border-dim); }
+  .dc-btn-label { font-weight: 600; }
+  .dc-btn-hint { font-size: 11px; color: var(--muted); font-weight: 400; }
+  .dc-btn.danger { border-color: rgba(248,81,73,0.4); }
+  .dc-btn.danger:hover { background: rgba(248,81,73,0.12); }
+  .dc-btn.danger .dc-btn-label { color: var(--red); }
+  .dc-btn.cancel { background: transparent; border-color: transparent; align-items: center; flex-direction: row; justify-content: center; padding: 6px; margin-top: 2px; }
+  .dc-btn.cancel:hover { background: var(--surface2); }
   .tok-badge {
     font-size: 10px; color: var(--dim);
     display: flex; align-items: center; gap: 2px;
@@ -389,6 +436,62 @@
     max-height: 260px; overflow-y: auto;
   }
 
+  /* Unified diff view */
+  .diff-unified {
+    border: 1px solid var(--border); border-radius: 8px;
+    overflow: hidden; font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+    font-size: 11.5px; line-height: 1.7; max-height: 400px; overflow-y: auto;
+  }
+  .diff-unified .diff-hunk-header {
+    background: #1a2332; color: #7aa2d4; padding: 4px 12px;
+    font-size: 10px; border-bottom: 1px solid var(--border-dim);
+    user-select: none;
+  }
+  .diff-unified .diff-line {
+    display: flex; min-height: 20px;
+  }
+  .diff-unified .diff-line:hover { filter: brightness(1.15); }
+  .diff-unified .diff-ln {
+    width: 36px; text-align: right; padding: 0 6px;
+    color: rgba(255,255,255,0.2); user-select: none; flex-shrink: 0;
+    font-size: 10px; line-height: 1.7;
+  }
+  .diff-unified .diff-marker {
+    width: 16px; text-align: center; flex-shrink: 0;
+    user-select: none; font-weight: 700;
+  }
+  .diff-unified .diff-text {
+    flex: 1; padding-right: 12px; white-space: pre-wrap;
+    word-break: break-word; min-width: 0;
+  }
+  .diff-unified .diff-del {
+    background: rgba(248, 81, 73, 0.15);
+  }
+  .diff-unified .diff-del .diff-marker { color: #f85149; }
+  .diff-unified .diff-del .diff-text { color: #fca5a5; }
+  .diff-unified .diff-add {
+    background: rgba(63, 185, 80, 0.15);
+  }
+  .diff-unified .diff-add .diff-marker { color: #3fb950; }
+  .diff-unified .diff-add .diff-text { color: #86efac; }
+  .diff-unified .diff-ctx {
+    background: transparent;
+  }
+  .diff-unified .diff-ctx .diff-marker { color: rgba(255,255,255,0.15); }
+  .diff-unified .diff-ctx .diff-text { color: var(--muted); }
+  .diff-toggle-bar {
+    display: flex; gap: 2px; margin-bottom: 6px;
+  }
+  .diff-toggle-btn {
+    font-size: 10px; padding: 3px 10px; border-radius: 4px;
+    cursor: pointer; border: 1px solid var(--border-dim);
+    background: var(--surface2); color: var(--dim);
+    font-weight: 600; user-select: none;
+  }
+  .diff-toggle-btn.active {
+    background: var(--blue); color: #fff; border-color: var(--blue);
+  }
+
   /* Copy button */
   .code-wrap { position: relative; }
   .code-copy {
@@ -480,7 +583,7 @@
     width: 260px; flex-shrink: 0;
     border-right: 1px solid var(--border);
     overflow-y: auto; padding: 6px 0 24px;
-    min-height: 0; height: 100%;
+    min-height: 0;
   }
   .history-session {
     padding: 8px 14px; cursor: pointer;
@@ -611,12 +714,14 @@
     fill: var(--surface2); stroke: var(--border); stroke-width: 1;
     rx: 6;
   }
-  .gnode.running   rect { stroke: var(--yellow); }
+  .gnode.running   rect { stroke: var(--yellow); filter: drop-shadow(0 0 6px rgba(210,153,34,0.35)); }
   .gnode.done      rect { stroke: var(--green);  }
-  .gnode.error     rect { stroke: var(--red);    }
+  .gnode.error     rect { stroke: var(--red); filter: drop-shadow(0 0 4px rgba(248,81,73,0.25)); }
+  .gnode.cancelled rect { stroke: var(--orange); stroke-dasharray: 6 3; }
   .gnode.selected  rect { fill: var(--selected); stroke: var(--blue); stroke-width: 2; }
   .gnode.worktree  rect { stroke: var(--teal);   stroke-dasharray: 5 3; fill: #0d1f1f; }
   .gnode.sidechain rect { stroke: var(--purple); stroke-dasharray: 4 3; fill: #140d1f; }
+  .gnode:hover     rect { filter: brightness(1.15); }
   .gedge           { fill: none; stroke: var(--border); stroke-width: 1.5; }
   .gedge.worktree  { stroke: var(--teal);  stroke-dasharray: 5 3; }
   .gedge.sidechain { stroke: var(--purple); stroke-dasharray: 4 3; }
@@ -734,6 +839,28 @@
   <div class="summary-panel" id="summary-panel-content"></div>
 </div>
 
+<!-- Delete-confirm modal -->
+<div id="delete-confirm" role="dialog" aria-modal="true" aria-labelledby="dc-title">
+  <div class="dc-backdrop" onclick="closeDeleteConfirm()"></div>
+  <div class="dc-panel">
+    <div class="dc-title" id="dc-title">Remove session?</div>
+    <div class="dc-body">
+      <div class="dc-sid" id="dc-sid"></div>
+    </div>
+    <div class="dc-actions">
+      <button type="button" class="dc-btn" id="dc-hide-btn">
+        <span class="dc-btn-label">Hide from view</span>
+        <span class="dc-btn-hint">Removes from the UI only. Restart the daemon to restore.</span>
+      </button>
+      <button type="button" class="dc-btn danger" id="dc-delete-btn">
+        <span class="dc-btn-label">Delete from database</span>
+        <span class="dc-btn-hint">Permanently drops the session and all child sessions, tool calls, and permission records.</span>
+      </button>
+      <button type="button" class="dc-btn cancel" onclick="closeDeleteConfirm()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast-container"></div>
 
 <div class="nav-tabs">
@@ -779,12 +906,12 @@
   </div>
 
   <!-- History view -->
-  <div id="history-view" style="display:none;flex:1;overflow:hidden">
+  <div id="history-view" style="display:none;flex:1;flex-direction:row;overflow:hidden">
     <div id="history-panel">
       <div class="history-section-header">Past Sessions</div>
       <div id="history-list"><div style="padding:20px 14px;color:var(--dim);font-size:12px">Loading…</div></div>
     </div>
-    <div id="history-detail" style="flex:1;overflow-y:auto;padding:24px 28px;min-height:0">
+    <div id="history-detail" style="flex:1;overflow-y:auto;min-height:0">
       <div class="detail-empty"><div class="detail-empty-icon">⊡</div><div>Select a session</div></div>
     </div>
   </div>
@@ -805,7 +932,10 @@
     <div id="graph-resize-handle"></div>
     <div class="graph-panel" onclick="event.stopPropagation()">
       <div class="graph-header">
-        <span class="graph-title">⬡ Agent Graph</span>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0">
+          <span class="graph-title">⬡ Agent Graph</span>
+          <span id="graph-stats" style="font-size:10px;color:var(--muted);white-space:nowrap"></span>
+        </div>
         <div style="display:flex;align-items:center;gap:4px">
           <span class="graph-zoom-btn" onclick="graphZoom(0.2)" title="Zoom in">+</span>
           <span class="graph-zoom-btn" onclick="graphZoom(-0.2)" title="Zoom out">−</span>
@@ -814,12 +944,21 @@
           <span class="graph-close" onclick="closeGraph()">✕</span>
         </div>
       </div>
+      <div id="graph-legend" style="display:flex;gap:12px;padding:4px 16px 6px;border-bottom:1px solid var(--border-dim);font-size:9px;color:var(--muted);flex-wrap:wrap">
+        <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);vertical-align:middle;margin-right:3px"></span>done</span>
+        <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--yellow);vertical-align:middle;margin-right:3px"></span>running</span>
+        <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);vertical-align:middle;margin-right:3px"></span>error</span>
+        <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--orange);vertical-align:middle;margin-right:3px"></span>cancelled</span>
+        <span><span style="display:inline-block;width:10px;height:8px;border:1px dashed var(--teal);border-radius:2px;vertical-align:middle;margin-right:3px"></span>worktree</span>
+        <span><span style="display:inline-block;width:10px;height:8px;border:1px dashed var(--purple);border-radius:2px;vertical-align:middle;margin-right:3px"></span>inline</span>
+      </div>
       <div id="graph-svg-wrap" style="position:relative"></div>
       <div id="graph-tooltip"></div>
     </div>
   </div>
 </div>
 
+<script src="/risk.js"></script>
 <script>
 // ── State ──────────────────────────────────────────────────────────────────
 let selected = null; // { type: 'agent'|'tool', sessionId, toolId? }
@@ -868,14 +1007,14 @@ function setStatus(state) {
 }
 
 function markCancelled() {
-  if (!lastRoot) return;
+  if (!lastRoots.length) return;
   function walk(n) {
     if (!n) return;
     if (n.status === 'running') { n.status = 'cancelled'; n.endedAt = Date.now(); }
     for (const tc of n.toolCalls) { if (!tc.done) tc.done = true; }
     for (const c of (n.children||[])) walk(c);
   }
-  walk(lastRoot);
+  for (const r of lastRoots) walk(r);
   patchTree(lastRoot);
   if (selected) renderDetail();
 }
@@ -885,12 +1024,56 @@ loadProjects(); // load project list on startup
 
 // ── Event delegation (replaces unsafe inline onclick string interpolation) ─
 document.addEventListener('click', e => {
-  // Summary rows → navigate to agent
+  // Hide session button — opens confirm modal with hide vs delete choice
+  const hideEl = e.target.closest('[data-hide-sid]');
+  if (hideEl) {
+    e.stopPropagation();
+    const sid = hideEl.dataset.hideSid;
+    openDeleteConfirm(sid);
+    return;
+  }
+  // Summary rows / parent links → navigate to agent
   const gotoEl = e.target.closest('[data-goto-sid]');
-  if (gotoEl) { closeSummary(); showView('trace'); selectAgent(gotoEl.dataset.gotoSid); return; }
-  // Graph nodes → select agent
-  const graphEl = e.target.closest('[data-graph-sid]');
-  if (graphEl) { selectAgent(graphEl.dataset.graphSid); renderGraph(); return; }
+  if (gotoEl) {
+    closeSummary();
+    const sid = gotoEl.dataset.gotoSid;
+    if (currentView === 'history') {
+      loadHistorySession(sid);
+    } else {
+      showView('trace'); selectAgent(sid);
+    }
+    return;
+  }
+  // Goto child agent from Agent/Task tool row
+  const gotoChildEl = e.target.closest('[data-goto-child]');
+  if (gotoChildEl) {
+    e.stopPropagation();
+    const toolId = gotoChildEl.dataset.gotoChild;
+    // Find the child session spawned by this tool call
+    function findChildByTool(roots) {
+      const queue = [...roots];
+      while (queue.length) {
+        const n = queue.shift();
+        for (const tc of n.toolCalls) {
+          if (tc.id === toolId && tc.childSessionId) return tc.childSessionId;
+        }
+        for (const c of (n.children || [])) queue.push(c);
+      }
+      // Fallback: check child session IDs matching the tool_use_id pattern
+      const queue2 = [...roots];
+      while (queue2.length) {
+        const n = queue2.shift();
+        for (const c of (n.children || [])) {
+          if (c.sessionId === `child-${toolId}` || (c.sessionId && c.sessionId.endsWith(toolId.slice(-12)))) return c.sessionId;
+          queue2.push(c);
+        }
+      }
+      return null;
+    }
+    const childSid = findChildByTool(lastRoots);
+    if (childSid) selectAgent(childSid);
+    return;
+  }
   // Thread reload button
   const reloadEl = e.target.closest('[data-reload-thread]');
   if (reloadEl) { threadCache.delete(reloadEl.dataset.reloadThread); loadThread(reloadEl.dataset.reloadThread, reloadEl.dataset.threadContainer); return; }
@@ -977,10 +1160,43 @@ document.addEventListener('click', e => {
   }
   // Select tool row (delegated from log rows)
   const toolRowEl = e.target.closest('[data-select-tool-sid]');
-  if (toolRowEl) { selectTool(toolRowEl.dataset.selectToolSid, toolRowEl.dataset.selectToolId); return; }
+  if (toolRowEl) {
+    const sid = toolRowEl.dataset.selectToolSid;
+    const tid = toolRowEl.dataset.selectToolId;
+    if (currentView === 'history') {
+      // In History view: render tool detail inline in history-detail
+      const histDetail = document.getElementById('history-detail');
+      if (histDetail && historyNodeCache) {
+        const tc = historyNodeCache.toolCalls?.find(t => t.id === tid);
+        if (tc) {
+          const backBtn = `<div style="margin-bottom:12px"><span style="color:var(--blue);cursor:pointer;font-size:11px;font-weight:600" onclick="loadHistorySession('${esc(sid)}')">← Back to session</span></div>`;
+          histDetail.innerHTML = '<div style="padding:24px 28px">' + backBtn + toolDetailHTML(historyNodeCache, tc) + '</div>';
+        }
+      }
+    } else {
+      selectTool(sid, tid);
+    }
+    return;
+  }
   // Select compact row (delegated)
   const compactRowEl = e.target.closest('[data-select-compact-sid]');
-  if (compactRowEl) { selectCompact(compactRowEl.dataset.selectCompactSid, compactRowEl.dataset.selectCompactId); return; }
+  if (compactRowEl) {
+    const sid = compactRowEl.dataset.selectCompactSid;
+    const cid = compactRowEl.dataset.selectCompactId;
+    if (currentView === 'history') {
+      const histDetail = document.getElementById('history-detail');
+      if (histDetail && historyNodeCache) {
+        const c = historyNodeCache.compactions?.find(x => x.id === cid);
+        if (c) {
+          const backBtn = `<div style="margin-bottom:12px"><span style="color:var(--blue);cursor:pointer;font-size:11px;font-weight:600" onclick="loadHistorySession('${esc(sid)}')">← Back to session</span></div>`;
+          histDetail.innerHTML = '<div style="padding:24px 28px">' + backBtn + compactDetailHTML(historyNodeCache, c) + '</div>';
+        }
+      }
+    } else {
+      selectCompact(sid, cid);
+    }
+    return;
+  }
   // Clear log filter (delegated)
   const clearFilterEl = e.target.closest('[data-clear-filter]');
   if (clearFilterEl) { clearLogFilter(clearFilterEl.dataset.clearFilter, clearFilterEl.dataset.clearList); return; }
@@ -1090,7 +1306,7 @@ function updateHeader(t) {
   const pill = document.getElementById('s-tokens-pill');
   if (pill) pill.title = `↑ In ${fmt(t.tokensIn||0)}   ↓ Out ${fmt(t.tokensOut||0)}   ◎ Cache ${fmt(t.cacheRead||0)}`;
   const costEl = document.getElementById('s-cost');
-  if (costEl) costEl.innerHTML = fmtCost(t.cost, t.isSubscription);
+  if (costEl) costEl.textContent = t.cost > 0 ? `$${t.cost.toFixed(4)}` : '—';
   const costKeyEl = document.getElementById('s-cost-key');
   if (costKeyEl) costKeyEl.textContent = t.isSubscription ? 'Cost (API equiv.)' : 'Cost';
 }
@@ -1104,8 +1320,8 @@ function fmt(n) { return n >= 1000 ? (n/1000).toFixed(1)+'k' : String(n); }
 function dur(ms) { return ms >= 1000 ? (ms/1000).toFixed(1)+'s' : ms+'ms'; }
 // fmtCost: show cost with a "sub" badge for subscription users (cost = API equivalent)
 function fmtCost(costUsd, isSubscription, decimals = 4) {
-  if (!costUsd && !isSubscription) return '—';
-  const amt = `$${(costUsd || 0).toFixed(decimals)}`;
+  if (!costUsd) return '—';
+  const amt = `$${costUsd.toFixed(decimals)}`;
   return isSubscription ? `${amt} <span title="Subscription plan — this is the API-equivalent cost" style="font-size:10px;background:var(--purple);color:#fff;border-radius:3px;padding:1px 4px;vertical-align:middle">sub</span>` : amt;
 }
 function esc(s) {
@@ -1170,12 +1386,13 @@ function patchTree(root) {
   // Re-order root group elements to match roots order, inserting date dividers
   // when the day changes between consecutive roots
   const seenDateKeys = new Set();
+  const dateKey = r => new Date(r.startedAt || Date.now()).toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
+  const dividers = new Map(); // key → divider element for this render pass
   let lastKey = null;
   for (const r of roots) {
     const els = agentEls.get(r.sessionId);
     if (!els) continue;
-    const d = new Date(r.startedAt || Date.now());
-    const key = d.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
+    const key = dateKey(r);
     if (key !== lastKey) {
       let divider = dateDividers.get(key);
       if (!divider) {
@@ -1185,11 +1402,28 @@ function patchTree(root) {
         divider.textContent = key;
         dateDividers.set(key, divider);
       }
-      panel.appendChild(divider);
+      dividers.set(key, divider);
       seenDateKeys.add(key);
       lastKey = key;
     }
-    panel.appendChild(els.group);
+  }
+
+  // Build desired panel child order and only mutate the DOM if it differs
+  const orderedRoots = roots.filter(r => agentEls.has(r.sessionId));
+  const desired = [];
+  lastKey = null;
+  for (const r of orderedRoots) {
+    const key = dateKey(r);
+    if (key !== lastKey) {
+      if (dividers.has(key)) desired.push(dividers.get(key));
+      lastKey = key;
+    }
+    desired.push(agentEls.get(r.sessionId).group);
+  }
+  const current = [...panel.children];
+  const needsReorder = desired.length !== current.length || desired.some((el, i) => el !== current[i]);
+  if (needsReorder) {
+    for (const el of desired) { if (el) panel.appendChild(el); }
   }
 
   // Remove stale agents no longer in any tree
@@ -1334,9 +1568,10 @@ function agentRowHTML(node, depth) {
   const chevron = `<span class="chevron">▾</span>`;
 
   // Status dot: pulsing for running, solid for ended
-  const dotColor = node.status === 'running' ? 'var(--yellow)'
-                 : node.status === 'done'    ? 'var(--green)'
-                 : node.status === 'error'   ? 'var(--red)' : 'var(--dim)';
+  const dotColor = node.status === 'running'   ? 'var(--yellow)'
+                 : node.status === 'done'      ? 'var(--green)'
+                 : node.status === 'error'     ? 'var(--red)'
+                 : node.status === 'cancelled' ? 'var(--orange)' : 'var(--dim)';
   const dotAnim  = node.status === 'running' ? 'animation:ripple-yellow 1.8s ease-out infinite' : '';
   const dot = `<span style="width:7px;height:7px;border-radius:50%;background:${dotColor};flex-shrink:0;${dotAnim}"></span>`;
 
@@ -1356,9 +1591,10 @@ function agentRowHTML(node, depth) {
   const toks = (node.tokens.input + node.tokens.output > 0)
     ? `<span class="tok-badge"><span class="tok-icon">◎</span>${fmt(node.tokens.input + node.tokens.output)}</span>` : '';
   const d    = node.endedAt ? `<span class="dur-pill">${dur(node.endedAt - node.startedAt)}</span>` : '';
-  const cost = node.costUsd > 0 || node.isSubscription ? `<span class="dur-pill" style="color:var(--green)">${fmtCost(node.costUsd, node.isSubscription, 3)}</span>` : '';
+  const cost = node.costUsd > 0 ? `<span class="dur-pill" style="color:var(--green)">${fmtCost(node.costUsd, node.isSubscription, 3)}</span>` : '';
   const startTs = node.startedAt ? `<span style="font-size:9px;color:var(--dim);flex-shrink:0;font-variant-numeric:tabular-nums">${new Date(node.startedAt).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'})}</span>` : '';
-  const meta = `<span class="agent-meta">${typeBadge}${toks}${d}${cost}${startTs}</span>`;
+  const hideBtn = `<span class="hide-btn" data-hide-sid="${esc(node.sessionId)}" title="Remove session…">✕</span>`;
+  const meta = `<span class="agent-meta">${typeBadge}${toks}${d}${cost}${startTs}${hideBtn}</span>`;
   return indent + chevron + dot + `<span style="width:6px;flex-shrink:0"></span>` + label + meta;
 }
 
@@ -1556,12 +1792,16 @@ function patchToolRow(rowEl, node, tc, depth) {
     const badgeTxt = toolBadgeLabel(tc.name, tc.summary);
     const short = shortSummary(tc.name, tc.summary);
     const ts = tc.startedAt ? new Date(tc.startedAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
-    const isDestructive = tc.name === 'Bash' && tc.summary &&
-      /\brm\s+-[a-zA-Z]*[rf]|\bDROP\s+(?:TABLE|DATABASE)\b|\bDELETE\s+FROM\b|\bTRUNCATE\s+(?:TABLE\b)?|\bgit\s+reset\s+--hard\b|\bgit\s+push\b[^|&;]*-(?:-force\b|f\b)|\bgit\s+branch\s+-[Dd]\b|\bkill\s+-9\b|\b(?:pkill|wipefs|mkfs|shred)\b|\bdd\s+if=/i.test(tc.summary);
-    const summaryStyle = isDestructive ? 'color:var(--red)' : '';
+    const bashRisk = tc.name === 'Bash' && tc.summary ? Risk.classifyBash(tc.summary) : 'safe';
+    const summaryColor = Risk.bashColor(bashRisk);
+    const summaryStyle = tc.name === 'Bash' && tc.summary ? `color:${summaryColor}` : '';
+    const badgeRiskStyle = Risk.bashBadgeStyle(bashRisk);
+    const isAgent = tc.name === 'Agent' || tc.name === 'Task';
+    const agentLink = isAgent ? `<span style="font-size:9px;color:var(--blue);cursor:pointer;flex-shrink:0;margin-left:2px" title="Jump to child agent" data-goto-child="${tc.id}">↗</span>` : '';
     rowEl.innerHTML = `${indent}<span class="tool-status ${statusCls}">${statusChar}</span>` +
-      `<span class="type-badge ${badge}"${isDestructive ? ' style="background:#2d0f0f;color:var(--red);border-color:#5a1a1a"' : ''}>${badgeTxt}</span>` +
+      `<span class="type-badge ${badge}"${badgeRiskStyle ? ` style="${badgeRiskStyle}"` : ''}>${badgeTxt}</span>` +
       `<span class="tool-summary-text"${summaryStyle ? ` style="${summaryStyle}"` : ''} title="${esc(tc.summary)}">${esc(short)}</span>` +
+      `${agentLink}` +
       `<span class="tool-dur-text">${newDur}</span>` +
       `${ts ? `<span style="font-size:9px;color:var(--dim);flex-shrink:0;margin-left:4px;font-variant-numeric:tabular-nums">${ts}</span>` : ''}`;
     rowEl.dataset.done    = newDone;
@@ -1590,12 +1830,144 @@ function patchThinking(els, node, depth) {
 // ── Selection ─────────────────────────────────────────────────────────────
 function selectAgent(sessionId) {
   selected = { type: 'agent', sessionId };
+  selectedFromHistory = false;
+  // Switch to Trace tab so the detail panel is visible
+  if (currentView !== 'trace') showView('trace');
   renderDetail();
   if (graphOpen) renderGraph();
+  // Expand any collapsed parent groups so the agent row is visible
+  const els = agentEls.get(sessionId);
+  if (els) {
+    let parent = els.group?.parentElement?.closest('.agent-group');
+    while (parent) {
+      parent.classList.remove('collapsed');
+      parent = parent.parentElement?.closest('.agent-group');
+    }
+  }
   // Update selection highlighting without rebuilding all trees
   document.querySelectorAll('.agent-row.selected').forEach(r => r.classList.remove('selected'));
-  const els = agentEls.get(sessionId);
   if (els) { els.row.classList.add('selected'); els.row.scrollIntoView({ block: 'nearest' }); }
+}
+
+async function hideSessionFromUI(sid) {
+  try {
+    const res = await fetch(`/api/sessions/${encodeURIComponent(sid)}/hide`, { method: 'POST' });
+    if (!res.ok) return;
+    // Remove from Trace tree
+    const els = agentEls.get(sid);
+    if (els?.group) {
+      els.group.style.transition = 'opacity 0.2s, max-height 0.3s';
+      els.group.style.opacity = '0';
+      els.group.style.maxHeight = els.group.offsetHeight + 'px';
+      requestAnimationFrame(() => { els.group.style.maxHeight = '0'; els.group.style.overflow = 'hidden'; });
+      setTimeout(() => els.group.remove(), 300);
+      agentEls.delete(sid);
+    }
+    // Remove from History list
+    const histRow = document.querySelector(`.history-session[data-history-sid="${CSS.escape(sid)}"]`);
+    if (histRow) {
+      histRow.style.transition = 'opacity 0.2s';
+      histRow.style.opacity = '0';
+      setTimeout(() => histRow.remove(), 200);
+    }
+    // Clear selection if this was selected
+    if (selected?.sessionId === sid) {
+      selected = null;
+      const panel = document.getElementById('detail-panel');
+      if (panel) panel.innerHTML = '<div class="detail-empty"><div class="detail-empty-icon">◌</div><div>Select an agent or tool call</div></div>';
+      const histDetail = document.getElementById('history-detail');
+      if (histDetail && selectedHistorySid === sid) {
+        histDetail.innerHTML = '<div class="detail-empty"><div class="detail-empty-icon">⊡</div><div>Select a session</div></div>';
+        selectedHistorySid = null;
+      }
+    }
+    // Show toast
+    showHideToast(sid);
+  } catch {}
+}
+
+function showHideToast(sid) {
+  showActionToast('Session hidden — restart daemon to restore');
+}
+
+function showActionToast(message) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'mode-toast';
+  toast.innerHTML = `<span style="font-size:11px;color:var(--muted)"></span><span class="toast-close" title="Dismiss">✕</span>`;
+  toast.firstChild.textContent = message;
+  function dismiss() {
+    toast.classList.add('toast-out');
+    toast.addEventListener('animationend', () => toast.remove(), { once: true });
+  }
+  const timer = setTimeout(dismiss, 3000);
+  toast.addEventListener('click', () => { clearTimeout(timer); dismiss(); });
+  container.appendChild(toast);
+}
+
+let pendingDeleteSid = null;
+function openDeleteConfirm(sid) {
+  pendingDeleteSid = sid;
+  const modal = document.getElementById('delete-confirm');
+  const sidEl = document.getElementById('dc-sid');
+  if (sidEl) sidEl.textContent = sid;
+  if (modal) modal.classList.add('open');
+}
+function closeDeleteConfirm() {
+  pendingDeleteSid = null;
+  const modal = document.getElementById('delete-confirm');
+  if (modal) modal.classList.remove('open');
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && pendingDeleteSid) closeDeleteConfirm();
+});
+document.addEventListener('click', e => {
+  if (e.target.closest('#dc-hide-btn')) {
+    const sid = pendingDeleteSid;
+    closeDeleteConfirm();
+    if (sid) hideSessionFromUI(sid);
+  } else if (e.target.closest('#dc-delete-btn')) {
+    const sid = pendingDeleteSid;
+    closeDeleteConfirm();
+    if (sid) deleteSessionFromDb(sid);
+  }
+});
+
+async function deleteSessionFromDb(sid) {
+  try {
+    const res = await fetch(`/api/sessions/${encodeURIComponent(sid)}/delete`, { method: 'POST' });
+    if (!res.ok) { showActionToast('Delete failed'); return; }
+    // Reuse the same UI removal animation as hide
+    const els = agentEls.get(sid);
+    if (els?.group) {
+      els.group.style.transition = 'opacity 0.2s, max-height 0.3s';
+      els.group.style.opacity = '0';
+      els.group.style.maxHeight = els.group.offsetHeight + 'px';
+      requestAnimationFrame(() => { els.group.style.maxHeight = '0'; els.group.style.overflow = 'hidden'; });
+      setTimeout(() => els.group.remove(), 300);
+      agentEls.delete(sid);
+    }
+    const histRow = document.querySelector(`.history-session[data-history-sid="${CSS.escape(sid)}"]`);
+    if (histRow) {
+      histRow.style.transition = 'opacity 0.2s';
+      histRow.style.opacity = '0';
+      setTimeout(() => histRow.remove(), 200);
+    }
+    if (selected?.sessionId === sid) {
+      selected = null;
+      const panel = document.getElementById('detail-panel');
+      if (panel) panel.innerHTML = '<div class="detail-empty"><div class="detail-empty-icon">◌</div><div>Select an agent or tool call</div></div>';
+    }
+    if (selectedHistorySid === sid) {
+      const histDetail = document.getElementById('history-detail');
+      if (histDetail) histDetail.innerHTML = '<div class="detail-empty"><div class="detail-empty-icon">⊡</div><div>Select a session</div></div>';
+      selectedHistorySid = null;
+    }
+    showActionToast('Session deleted from database');
+  } catch {
+    showActionToast('Delete failed');
+  }
 }
 
 function selectTool(sessionId, toolId) {
@@ -1778,18 +2150,19 @@ function agentDetailHTML(node) {
     const bl = toolBadgeLabel(tc.name, tc.summary);
     const d = tc.durationMs ? `<span style="font-size:9px;color:var(--green);flex-shrink:0">${dur(tc.durationMs)}</span>` : '';
     const ts = tc.startedAt ? new Date(tc.startedAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '';
-    const isDestructive = tc.name === 'Bash' && tc.summary &&
-      /\brm\s+-[a-zA-Z]*[rf]|\bDROP\s+|\bDELETE\s+FROM\b|\bTRUNCATE\b|\bgit\s+reset\s+--hard|\bgit\s+push\b[^|&;]*-(?:-force\b|f\b)|\bkill\s+-9\b|\b(?:pkill|wipefs|mkfs|shred)\b/i.test(tc.summary);
+    const bashRisk2 = tc.name === 'Bash' && tc.summary ? Risk.classifyBash(tc.summary) : 'safe';
+    const riskColor2 = Risk.bashColor(bashRisk2);
+    const badgeRiskStyle2 = Risk.bashBadgeStyle(bashRisk2);
     const statusDot = tc.done
-      ? `<span style="width:5px;height:5px;border-radius:50%;background:${isDestructive?'var(--red)':'var(--green)'};flex-shrink:0"></span>`
+      ? `<span style="width:5px;height:5px;border-radius:50%;background:${bashRisk2!=='safe'?riskColor2:'var(--green)'};flex-shrink:0"></span>`
       : `<span style="width:5px;height:5px;border-radius:50%;background:var(--yellow);flex-shrink:0;animation:ripple 1.4s ease-out infinite"></span>`;
-    const summaryColor = isDestructive ? 'color:var(--red)' : 'color:var(--muted)';
+    const summaryColor = tc.name === 'Bash' && tc.summary ? `color:${riskColor2}` : 'color:var(--muted)';
     return `<div class="log-row" data-tool-name="${esc(tc.name)}" data-log-list="${logListId}"
       style="display:flex;align-items:center;gap:6px;padding:4px 8px;border-bottom:1px solid var(--border-dim);min-height:0;cursor:pointer"
       data-select-tool-sid="${esc(node.sessionId)}" data-select-tool-id="${esc(tc.id)}">
       <span style="font-size:9px;color:var(--dim);width:20px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums">${i+1}</span>
       ${statusDot}
-      <span class="type-badge ${bc}" style="font-size:8px;padding:1px 4px;flex-shrink:0;border-radius:3px${isDestructive?';background:#2d0f0f;color:var(--red);border-color:#5a1a1a':''}">${bl}</span>
+      <span class="type-badge ${bc}" style="font-size:8px;padding:1px 4px;flex-shrink:0;border-radius:3px${badgeRiskStyle2?';'+badgeRiskStyle2:''}">${bl}</span>
       <span style="font-size:11px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;${summaryColor}" title="${esc(tc.summary)}">${esc(tc.summary)}</span>
       ${d}
       ${ts ? `<span style="font-size:9px;color:var(--dim);flex-shrink:0;font-variant-numeric:tabular-nums">${ts}</span>` : ''}
@@ -1808,17 +2181,17 @@ function agentDetailHTML(node) {
     <div class="prop-grid">
       <span class="prop-key">Status</span>
       <span class="prop-val"><span class="status-chip ${node.status}">${node.status}</span></span>
-      <span class="prop-key">Duration</span>
-      <span class="prop-val">${elapsed}</span>
-      <span class="prop-key">Cost</span>
-      <span class="prop-val green">${fmtCost(node.costUsd, node.isSubscription)}</span>
-      ${node.isSidechain ? `<span class="prop-key">Type</span><span class="prop-val" style="color:var(--purple)">⊕ Inline sidechain</span>` : ''}
+      ${node.isSidechain ? `<span class="prop-key">Type</span><span class="prop-val" style="color:var(--purple)">⊕ Inline agent</span>` : ''}
       ${node.isWorktree  ? `<span class="prop-key">Type</span><span class="prop-val" style="color:var(--teal)">⎇ Worktree</span>` : ''}
+      ${!node.isSidechain ? `<span class="prop-key">Duration</span><span class="prop-val">${elapsed}</span>` : ''}
+      ${!node.isSidechain ? `<span class="prop-key">Cost</span><span class="prop-val green">${fmtCost(node.costUsd, node.isSubscription)}</span>` : ''}
       ${node.permissionMode && !node.isSidechain && !node.isWorktree ? `<span class="prop-key">Mode</span><span class="prop-val">${esc(node.permissionMode)}</span>` : ''}
       ${node.gitBranch ? `<span class="prop-key">Branch</span><span class="prop-val mono" style="color:var(--green)">⎇ ${esc(node.gitBranch)}</span>` : ''}
+      ${node.parentSessionId ? `<span class="prop-key">Parent</span><span class="prop-val"><span data-goto-sid="${esc(node.parentSessionId)}" style="color:var(--blue);cursor:pointer;font-weight:600;font-size:11px">↗ View Parent Session</span></span>` : ''}
       <span class="prop-key mono" style="font-size:11px">Session ID</span>
       <span class="prop-val mono" style="font-size:10px;color:var(--dim);word-break:break-all">${esc(node.sessionId)}</span>
     </div>
+    ${node.isSidechain ? `<div style="font-size:10px;color:var(--dim);margin-top:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border-dim);border-radius:6px">Inline agents run inside the parent session — tokens and cost are counted under the parent.</div>` : ''}
   </div>
 
   ${projectFolder ? `
@@ -1834,7 +2207,7 @@ function agentDetailHTML(node) {
     </div>
   </div>` : ''}
 
-  <div class="section">
+  ${!node.isSidechain ? `<div class="section">
     <div class="section-label">Tokens</div>
     <div class="token-bar">
       <div class="token-item">
@@ -1853,7 +2226,7 @@ function agentDetailHTML(node) {
         <span class="token-item-val">${fmt(node.tokens.cacheRead)}</span>
       </div>
     </div>
-  </div>
+  </div>` : ''}
 
   ${(node.compactions || []).length ? (() => {
     const sessionStart = node.startedAt || 0;
@@ -1896,15 +2269,15 @@ function agentDetailHTML(node) {
 
   ${node.lastText ? `
   <div class="section">
-    <div class="section-label">Last output</div>
-    <div class="code-block">${esc(node.lastText)}</div>
+    <div class="section-label">${node.isSidechain ? 'Agent Result' : 'Last output'}</div>
+    <div class="code-block" style="max-height:400px;overflow-y:auto">${esc(node.lastText)}</div>
   </div>` : ''}
 
   ${node.isSidechain ? `
   <div class="section">
-    <div class="section-label">Conversation thread</div>
-    <div style="color:var(--dim);font-size:12px;margin-top:8px;padding:10px 12px;border:1px solid var(--border-dim);border-radius:6px">
-      Inline agent — runs inside the parent session's transcript. View the parent session to see the full conversation.
+    <div style="color:var(--dim);font-size:11px;padding:10px 12px;border:1px solid var(--border-dim);border-radius:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      Inline agents share the parent session's transcript and context window.
+      ${node.parentSessionId ? `<span data-goto-sid="${esc(node.parentSessionId)}" style="color:var(--blue);cursor:pointer;font-weight:600;font-size:11px">↗ View Parent Session</span>` : ''}
     </div>
   </div>` : `
   <div class="section">
@@ -1960,6 +2333,14 @@ function toolDetailHTML(node, tc) {
       <span class="prop-val" style="color:var(--muted)">${esc(tc.summary)}</span>
     </div>
   </div>
+
+  ${(tc.name === 'Agent' || tc.name === 'Task') ? `
+  <div class="section">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span data-goto-child="${tc.id}" style="font-size:11px;padding:5px 12px;border-radius:5px;background:var(--blue);color:#fff;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:4px">↗ View Child Agent</span>
+    </div>
+    ${tc.input?.prompt ? `<div class="section-label">Agent Prompt</div><div style="font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border-dim);border-radius:6px;padding:10px 12px;white-space:pre-wrap;word-break:break-word;max-height:300px;overflow-y:auto;line-height:1.5;margin-bottom:8px">${esc(String(tc.input.prompt).slice(0, 3000))}</div>` : ''}
+  </div>` : ''}
 
   ${(hasInput || hasOutput) ? `
   <div class="section">
@@ -2150,6 +2531,11 @@ function buildSummary(type) {
 // ── View switching ─────────────────────────────────────────────────────────
 let currentView = 'trace';
 function showView(view) {
+  // Clear history-sourced selection when leaving History tab
+  if (view !== 'history' && selectedFromHistory) {
+    selected = null;
+    selectedFromHistory = false;
+  }
   currentView = view;
   document.querySelectorAll('.nav-tab').forEach((t, i) => {
     const views = ['trace', 'history', 'permissions'];
@@ -2175,6 +2561,8 @@ function showView(view) {
 
 // ── History ────────────────────────────────────────────────────────────────
 let selectedHistorySid = null;
+let selectedFromHistory = false;
+let historyNodeCache = null; // cached API response for the currently viewed history session
 
 // ── Projects panel ────────────────────────────────────────────────────────
 let projectsOpen = false;
@@ -2220,7 +2608,7 @@ function renderProjects() {
     const activeSid = selected?.sessionId;
     const sessionRows = sessions.map(s => {
       const dotColor = s.status === 'running' ? 'var(--yellow)' : s.status === 'done' ? 'var(--green)' : 'var(--red)';
-      const cost = (s.cost_usd > 0 || s.is_subscription) ? fmtCost(s.cost_usd, !!s.is_subscription, 2) : '';
+      const cost = s.cost_usd > 0 ? fmtCost(s.cost_usd, !!s.is_subscription, 2) : '';
       const age  = s.started_at ? relativeTime(s.started_at) : '';
       const isActive = s.id === activeSid;
       return `<div class="proj-session-row${isActive?' active':''}" data-proj-sid="${esc(s.id)}">
@@ -2294,7 +2682,7 @@ async function loadHistoryList() {
     for (const [dateKey, group] of groups) {
       html += `<div style="padding:6px 14px 2px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--dim)">${esc(dateKey)}</div>`;
       for (const s of group) {
-        const cost = (s.cost_usd > 0 || s.is_subscription) ? fmtCost(s.cost_usd, !!s.is_subscription, 2) : '';
+        const cost = s.cost_usd > 0 ? fmtCost(s.cost_usd, !!s.is_subscription, 2) : '';
         const d = new Date(s.started_at);
         const dateTime = d.toLocaleString([], {year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
         const active = s.id === selectedHistorySid ? ' active' : '';
@@ -2303,8 +2691,9 @@ async function loadHistoryList() {
         html += `<div class="history-session${active}" data-history-sid="${esc(s.id)}">
           <div style="display:flex;align-items:center;gap:6px">
             <div class="history-status-dot ${esc(s.status)}"></div>
-            <div class="history-session-label">${esc(s.label)}</div>
+            <div class="history-session-label" style="flex:1;min-width:0">${esc(s.label)}</div>
             ${modeBadge}
+            <span class="hide-btn" data-hide-sid="${esc(s.id)}" title="Remove session…">✕</span>
           </div>
           <div class="history-session-meta">
             <span class="history-session-date">${esc(dateTime)}</span>
@@ -2331,7 +2720,12 @@ async function loadHistorySession(sid) {
   try {
     const res = await fetch(`/api/sessions/${encodeURIComponent(sid)}`);
     const node = await res.json();
+    historyNodeCache = node;
     detail.innerHTML = '<div style="padding:24px 28px">' + agentDetailHTML(node) + '</div>';
+    // Sync graph to the selected history session
+    selected = { type: 'agent', sessionId: sid };
+    selectedFromHistory = true;
+    if (graphOpen) renderGraph();
   } catch {
     detail.innerHTML = '<div style="padding:24px;color:var(--red);font-size:12px">Failed to load session.</div>';
   }
@@ -2448,7 +2842,7 @@ function renderPermissions(data, audit = {}, filterSid = '') {
   const chipList = (items, cls) => items.length
     ? items.map(i => {
         const isSensitive = cls === 'allow' && SENSITIVE_ALLOW_RE.test(i);
-        const style = isSensitive ? ' style="background:#2d0f0f;color:var(--red);border-color:#5a1a1a"' : '';
+        const style = isSensitive ? ` style="background:${Risk.C.BG_RED};color:${Risk.C.RED};border-color:${Risk.C.BD_RED}"` : '';
         return `<span class="perm-chip ${cls}"${style}>${esc(i)}</span>`;
       }).join('')
     : `<span class="perm-empty">None</span>`;
@@ -2492,12 +2886,8 @@ function renderPermissions(data, audit = {}, filterSid = '') {
     </div>`).join('');
 
   // ── Audit: hooks ──
-  const DESTRUCTIVE_BASH_RE = /\brm\s+-[a-zA-Z]*[rf]|\bDROP\s+(?:TABLE|DATABASE)\b|\btruncate\b|\bchmod\s+777\b|\bgit\s+push\b[^|&;]*-(?:-force\b|f\b)|\b(?:pkill|wipefs|mkfs|shred)\b|>\s*\/dev\/sda|\bdd\b.*of=/i;
-  // Strip quoted strings before testing so `echo "rm -rf"` doesn't false-positive
-  function isDestructiveBash(cmd) {
-    const stripped = cmd.replace(/'(?:[^'\\]|\\.)*'/g, "''").replace(/"(?:[^"\\]|\\.)*"/g, '""');
-    return DESTRUCTIVE_BASH_RE.test(stripped);
-  }
+
+  const { classifyBash } = Risk;
 
   const hookRows = hooks.length ? hooks.map(h => {
     const eventColor = { PreToolUse:'var(--yellow)', PostToolUse:'var(--teal)', Stop:'var(--purple)', PreCompact:'var(--muted)', PostCompact:'var(--muted)', SessionStart:'var(--blue)' }[h.event] || 'var(--muted)';
@@ -2513,50 +2903,56 @@ function renderPermissions(data, audit = {}, filterSid = '') {
   }).join('') : `<span class="perm-empty">No hooks configured</span>`;
 
   // ── Audit: bash commands ──
-  // Sort destructive commands to the top
+  // Sort: destructive first, risky second, low third, safe last
   const sortedBash = bashCommands.slice(0, 100).sort((a, b) => {
-    const da = isDestructiveBash(a.command) ? 0 : 1;
-    const db = isDestructiveBash(b.command) ? 0 : 1;
-    return da - db || (b.startedAt || 0) - (a.startedAt || 0);
+    const ra = Risk.SORT_RANK[classifyBash(a.command)] ?? 3;
+    const rb = Risk.SORT_RANK[classifyBash(b.command)] ?? 3;
+    return ra - rb || (b.startedAt || 0) - (a.startedAt || 0);
   });
   const bashRows2 = sortedBash.length ? sortedBash.map(b => {
-    const isDanger = isDestructiveBash(b.command);
+    const cls = classifyBash(b.command);
     const isAuto = b.permissionMode === 'bypassPermissions';
     const ts = b.startedAt ? new Date(b.startedAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
-    const dangerBadge = isDanger ? `<span style="font-size:9px;font-weight:700;color:var(--red);background:#2d0f0f;border:1px solid #5a1a1a;padding:1px 6px;border-radius:3px;flex-shrink:0;letter-spacing:0.04em">DESTRUCTIVE</span>` : '';
-    const autoBadge = isAuto ? `<span style="font-size:9px;font-weight:700;color:#e3a008;background:#2d1f00;border:1px solid #5a3e00;padding:1px 6px;border-radius:3px;flex-shrink:0;letter-spacing:0.04em" title="Ran in bypass-permissions mode — no user approval required">AUTO ACCEPT</span>` : '';
-    const rowStyle = isDanger ? 'background:#1a0808;border:1px solid #5a1a1a;margin-bottom:4px;' : isAuto ? 'background:#1a1400;border:1px solid #3d2e00;margin-bottom:2px;' : '';
-    return `<div class="perm-tool-row" data-bash-destructive="${isDanger?'1':'0'}" style="gap:8px;align-items:center;padding:${isDanger||isAuto?'8px 10px':'5px 8px'};border-radius:4px;${rowStyle}">
-      ${dangerBadge}${autoBadge}
-      <span class="mono" style="font-size:${isDanger?'12px':'11px'};color:${isDanger?'var(--red)':isAuto?'#c9a227':'var(--muted)'};flex:1;word-break:break-all;${isDanger?'font-weight:600;':'line-height:1.5;'}">${esc(b.command)}</span>
+    const badgeLabel = Risk.bashBadgeLabel(cls);
+    const badgeStyle = Risk.bashBadgeStyle(cls);
+    const clsBadge = badgeLabel
+      ? `<span style="font-size:9px;font-weight:700;${badgeStyle};padding:1px 6px;border-radius:3px;flex-shrink:0;letter-spacing:0.04em">${badgeLabel}</span>`
+      : '';
+    const autoBadge = isAuto ? `<span style="font-size:9px;font-weight:700;color:var(--purple);background:#2d1b4e;border:1px solid #5a3a80;padding:1px 6px;border-radius:3px;flex-shrink:0;letter-spacing:0.04em" title="Ran in bypass-permissions mode">BYPASS</span>` : '';
+    const rowStyle = Risk.bashRowStyle(cls);
+    const textColor = Risk.bashColor(cls);
+    const elevated = cls !== 'safe' || isAuto;
+    return `<div class="perm-tool-row" data-bash-destructive="${cls==='destructive'?'1':'0'}" style="gap:8px;align-items:center;padding:${elevated?'8px 10px':'5px 8px'};border-radius:4px;${rowStyle}">
+      ${clsBadge}${autoBadge}
+      <span class="mono" style="font-size:${elevated?'12px':'11px'};color:${textColor};flex:1;word-break:break-all;${cls==='destructive'?'font-weight:600;':'line-height:1.5;'}">${esc(b.command)}</span>
       <span style="font-size:10px;color:var(--dim);white-space:nowrap;flex-shrink:0">${esc(ts)}</span>
     </div>`;
   }).join('') : `<span class="perm-empty">No bash commands recorded</span>`;
 
   // ── Audit: sensitive files ──
   const sensitiveRows = sensitiveFiles.length ? sensitiveFiles.map(f => {
-    const toolColor = { Read:'var(--blue)', Write:'var(--red)', Edit:'var(--yellow)' }[f.tool] || 'var(--muted)';
+    const toolColor = Risk.fileAccessColor(f.tool);
     return `<div class="perm-tool-row" style="gap:8px;padding:5px 8px;border-radius:4px;background:var(--surface2)">
       <span style="font-size:9px;font-weight:700;color:${toolColor};width:34px;flex-shrink:0">${esc(f.tool)}</span>
-      <span class="mono" style="font-size:10px;color:var(--red);flex:1;word-break:break-all">${esc(f.filePath)}</span>
+      <span class="mono" style="font-size:10px;color:var(--muted);flex:1;word-break:break-all">${esc(f.filePath)}</span>
     </div>`;
   }).join('') : `<span class="perm-empty">No sensitive file access detected</span>`;
 
   // ── Audit: network requests ──
   const webRows2 = webRequests.length ? webRequests.map(w => {
     const flagBadge = w.flagged
-      ? `<span style="font-size:9px;font-weight:700;color:var(--red);background:#2d0f0f;border:1px solid #5a1a1a;padding:1px 5px;border-radius:3px;flex-shrink:0">INTERNAL</span>`
+      ? `<span style="font-size:9px;font-weight:700;color:${Risk.C.ORANGE};background:${Risk.C.BG_ORANGE};border:1px solid ${Risk.C.BD_ORANGE};padding:1px 5px;border-radius:3px;flex-shrink:0">INTERNAL</span>`
       : '';
-    return `<div class="perm-tool-row" style="gap:8px;padding:5px 8px;border-radius:4px;background:${w.flagged ? '#1a0808' : 'var(--surface2)'}">
+    return `<div class="perm-tool-row" style="gap:8px;padding:5px 8px;border-radius:4px;background:${w.flagged ? Risk.C.BG_ORANGE : 'var(--surface2)'}">
       ${flagBadge}
       <span style="font-size:9px;font-weight:700;color:var(--blue);width:60px;flex-shrink:0">${esc(w.tool)}</span>
-      <span class="mono" style="font-size:10px;color:${w.flagged ? 'var(--red)' : 'var(--blue-soft)'};flex:1;word-break:break-all">${esc(w.url)}</span>
+      <span class="mono" style="font-size:10px;color:${w.flagged ? Risk.C.ORANGE : 'var(--blue-soft)'};flex:1;word-break:break-all">${esc(w.url)}</span>
       ${w.domain ? `<span style="font-size:10px;color:var(--dim);white-space:nowrap;flex-shrink:0">${esc(w.domain)}</span>` : ''}
     </div>`;
   }).join('') : `<span class="perm-empty">No network requests recorded</span>`;
 
   // ── Audit: permission decisions ──
-  const decisionColors = { allowed: 'var(--green)', blocked: 'var(--yellow)', error: 'var(--orange)', denied: 'var(--red)' };
+  const decisionColors = { allowed: Risk.C.GREEN, blocked: Risk.C.ORANGE, error: Risk.C.ORANGE, denied: Risk.C.RED };
   const permDecisionRows = permissionDecisions.length
     ? permissionDecisions.slice(0, 200).map(d => {
         const decColor = decisionColors[d.decision] || 'var(--muted)';
@@ -2597,19 +2993,23 @@ function renderPermissions(data, audit = {}, filterSid = '') {
   // ── Audit: bypass sessions ──
   const bypassRows2 = bypassSessions.length ? bypassSessions.map(s => {
     const ts = new Date(s.started_at).toLocaleString([], {year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-    return `<div class="perm-tool-row" data-perm-jump-sid="${esc(s.id)}" style="gap:8px;padding:6px 10px;border-radius:4px;background:#2d0f0f;border:1px solid #5a1a1a;cursor:pointer" title="Open in History">
-      <span style="font-size:9px;font-weight:700;color:var(--red)">BYPASS</span>
+    return `<div class="perm-tool-row" data-perm-jump-sid="${esc(s.id)}" style="gap:8px;padding:6px 10px;border-radius:4px;background:${Risk.C.BG_RED};border:1px solid ${Risk.C.BD_RED};cursor:pointer" title="Open in History">
+      <span style="font-size:9px;font-weight:700;color:${Risk.C.RED}">BYPASS</span>
       <span style="font-size:11px;flex:1;color:var(--text)">${esc(s.label)}</span>
       <span style="font-size:10px;color:var(--dim);white-space:nowrap">${esc(ts)}</span>
     </div>`;
   }).join('') : `<span class="perm-empty" style="color:var(--green)">No bypass-mode sessions — good</span>`;
 
   // ── Risk summary banner ──
-  const dangerCount = bashCommands.filter(b => isDestructiveBash(b.command)).length;
+  const dangerCount = bashCommands.filter(b => Risk.classifyBash(b.command) === 'destructive').length;
+  const riskyCount  = bashCommands.filter(b => Risk.classifyBash(b.command) === 'risky').length;
+  const lowCount    = bashCommands.filter(b => Risk.classifyBash(b.command) === 'low').length;
   const riskItems = [
-    bypassSessions.length && `<span data-risk-scroll="perm-sec-bypass" style="color:var(--red);font-weight:600;cursor:pointer" title="Jump to section">${bypassSessions.length} bypass-mode session${bypassSessions.length>1?'s':''}</span>`,
-    dangerCount && `<span data-risk-scroll="perm-sec-bash" style="color:var(--red);cursor:pointer" title="Jump to section">${dangerCount} destructive command${dangerCount>1?'s':''}</span>`,
-    sensitiveFiles.length && `<span data-risk-scroll="perm-sec-sensitive" style="color:var(--yellow);cursor:pointer" title="Jump to section">${sensitiveFiles.length} sensitive file access${sensitiveFiles.length>1?'es':''}</span>`,
+    bypassSessions.length && `<span data-risk-scroll="perm-sec-bypass" style="color:${Risk.C.RED};font-weight:600;cursor:pointer" title="Jump to section">${bypassSessions.length} bypass-mode session${bypassSessions.length>1?'s':''}</span>`,
+    dangerCount && `<span data-risk-scroll="perm-sec-bash" style="color:${Risk.C.RED};cursor:pointer" title="Jump to section">${dangerCount} destructive command${dangerCount>1?'s':''}</span>`,
+    riskyCount  && `<span data-risk-scroll="perm-sec-bash" style="color:${Risk.C.ORANGE};cursor:pointer" title="Jump to section">${riskyCount} risky command${riskyCount>1?'s':''}</span>`,
+    lowCount    && `<span data-risk-scroll="perm-sec-bash" style="color:${Risk.C.YELLOW};cursor:pointer" title="Jump to section">${lowCount} low-risk command${lowCount>1?'s':''}</span>`,
+    sensitiveFiles.length && `<span data-risk-scroll="perm-sec-sensitive" style="color:${Risk.C.YELLOW};cursor:pointer" title="Jump to section">${sensitiveFiles.length} sensitive file access${sensitiveFiles.length>1?'es':''}</span>`,
     hooks.length && `<span data-risk-scroll="perm-sec-hooks" style="color:var(--muted);cursor:pointer" title="Jump to section">${hooks.length} active hook${hooks.length>1?'s':''}</span>`,
   ].filter(Boolean);
 
@@ -2699,7 +3099,7 @@ function renderPermissions(data, audit = {}, filterSid = '') {
   </div>
 
   <div class="perm-section" id="perm-sec-bash">
-    <div class="section-label">Bash Command Audit <span style="font-size:9px;color:var(--dim);font-weight:400;margin-left:6px;text-transform:none;letter-spacing:0">last 100 · destructive in red</span></div>
+    <div class="section-label">Bash Command Audit <span style="font-size:9px;color:var(--dim);font-weight:400;margin-left:6px;text-transform:none;letter-spacing:0">last 100 · red=destructive · orange=risky · yellow=low-risk</span></div>
     <div style="max-height:300px;overflow-y:auto">${bashRows2}</div>
   </div>
 
@@ -2727,8 +3127,8 @@ function renderPermissions(data, audit = {}, filterSid = '') {
     <div class="section-label">Blocked / Denied Actions <span style="font-size:10px;color:var(--dim);font-weight:400;margin-left:6px;text-transform:none;letter-spacing:0">tool calls that were denied or never completed</span></div>
     <div style="max-height:240px;overflow-y:auto">${blockedActions.map(a => {
       const ts = a.startedAt ? new Date(a.startedAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
-      return `<div class="perm-tool-row" style="gap:8px;padding:6px 8px;border-radius:4px;background:#2d2006;border:1px solid #5a4010">
-        <span style="font-size:10px;font-weight:700;color:var(--yellow);width:50px;flex-shrink:0">${esc(a.tool)}</span>
+      return `<div class="perm-tool-row" style="gap:8px;padding:6px 8px;border-radius:4px;background:${Risk.C.BG_ORANGE};border:1px solid ${Risk.C.BD_ORANGE}">
+        <span style="font-size:10px;font-weight:700;color:${Risk.C.ORANGE};width:50px;flex-shrink:0">${esc(a.tool)}</span>
         <span class="mono" style="font-size:11px;color:var(--muted);flex:1;word-break:break-all">${esc(a.detail)}</span>
         <span style="font-size:10px;color:var(--dim);white-space:nowrap;flex-shrink:0">${esc(ts)}</span>
       </div>`;
@@ -2848,6 +3248,94 @@ function payloadField(label, content) {
   return `<div class="payload-field"><div class="payload-field-label">${esc(label)}</div>${content}</div>`;
 }
 
+// ── Unified diff renderer ──────────────────────────────────────────────────
+function renderUnifiedDiff(oldStr, newStr) {
+  const oldLines = (oldStr || '').split('\n');
+  const newLines = (newStr || '').split('\n');
+
+  // Simple LCS-based diff
+  const m = oldLines.length, n = newLines.length;
+  // Build edit script using DP (O(m*n) but inputs are small — max ~200 lines each from 64KB cap)
+  const dp = Array.from({ length: m + 1 }, () => new Uint16Array(n + 1));
+  for (let i = m - 1; i >= 0; i--)
+    for (let j = n - 1; j >= 0; j--)
+      dp[i][j] = oldLines[i] === newLines[j] ? dp[i+1][j+1] + 1 : Math.max(dp[i+1][j], dp[i][j+1]);
+
+  const ops = []; // { type: 'ctx'|'del'|'add', text, oldLn?, newLn? }
+  let i = 0, j = 0, oldLn = 1, newLn = 1;
+  while (i < m || j < n) {
+    if (i < m && j < n && oldLines[i] === newLines[j]) {
+      ops.push({ type: 'ctx', text: oldLines[i], oldLn: oldLn++, newLn: newLn++ });
+      i++; j++;
+    } else if (j < n && (i >= m || dp[i][j+1] >= dp[i+1][j])) {
+      ops.push({ type: 'add', text: newLines[j], newLn: newLn++ });
+      j++;
+    } else {
+      ops.push({ type: 'del', text: oldLines[i], oldLn: oldLn++ });
+      i++;
+    }
+  }
+
+  // Collapse context: show 3 lines around each change
+  const CTX = 3;
+  const isChange = ops.map(o => o.type !== 'ctx');
+  const visible = new Uint8Array(ops.length);
+  for (let k = 0; k < ops.length; k++) {
+    if (isChange[k]) {
+      for (let c = Math.max(0, k - CTX); c <= Math.min(ops.length - 1, k + CTX); c++) visible[c] = 1;
+    }
+  }
+
+  let html = '<div class="diff-unified">';
+  let inBlock = false;
+  for (let k = 0; k < ops.length; k++) {
+    if (!visible[k]) { inBlock = false; continue; }
+    if (!inBlock) {
+      const o = ops[k];
+      const hunkOld = o.oldLn || o.oldLn === 0 ? o.oldLn : '';
+      const hunkNew = o.newLn || o.newLn === 0 ? o.newLn : '';
+      if (k > 0) html += `<div class="diff-hunk-header">@@ −${hunkOld} +${hunkNew} @@</div>`;
+      inBlock = true;
+    }
+    const o = ops[k];
+    const cls = o.type === 'del' ? 'diff-del' : o.type === 'add' ? 'diff-add' : 'diff-ctx';
+    const marker = o.type === 'del' ? '−' : o.type === 'add' ? '+' : ' ';
+    const ln1 = o.oldLn != null ? o.oldLn : '';
+    const ln2 = o.newLn != null ? o.newLn : '';
+    html += `<div class="diff-line ${cls}"><span class="diff-ln">${ln1}</span><span class="diff-ln">${ln2}</span><span class="diff-marker">${marker}</span><span class="diff-text">${esc(o.text)}</span></div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderEditDiff(oldStr, newStr, editIndex) {
+  const prefix = editIndex != null ? `Edit ${editIndex + 1}` : '';
+  const label = prefix ? `${prefix} — ` : '';
+  const uid = 'diff-' + Math.random().toString(36).slice(2, 8);
+  return `<div class="payload-field">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <span class="payload-label">${label}Changes</span>
+      <div class="diff-toggle-bar">
+        <span class="diff-toggle-btn active" onclick="toggleDiffView(this,'${uid}','unified')">Unified</span>
+        <span class="diff-toggle-btn" onclick="toggleDiffView(this,'${uid}','split')">Split</span>
+      </div>
+    </div>
+    <div id="${uid}-unified">${renderUnifiedDiff(oldStr, newStr)}</div>
+    <div id="${uid}-split" style="display:none">
+      ${payloadField('Remove', `<div class="payload-diff-old">${esc(oldStr || '')}</div>`)}
+      ${payloadField('Insert', `<div class="payload-diff-new">${esc(newStr || '')}</div>`)}
+    </div>
+  </div>`;
+}
+
+function toggleDiffView(btn, uid, mode) {
+  const bar = btn.parentElement;
+  bar.querySelectorAll('.diff-toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(uid + '-unified').style.display = mode === 'unified' ? '' : 'none';
+  document.getElementById(uid + '-split').style.display = mode === 'split' ? '' : 'none';
+}
+
 function renderInputPayload(name, input) {
   if (!input || !Object.keys(input).length) return '';
 
@@ -2870,13 +3358,10 @@ function renderInputPayload(name, input) {
   if (name === 'Edit' || name === 'NotebookEdit') {
     let out = payloadField('File', `<div class="payload-path">${esc(input.file_path || input.notebook_path || '')}</div>`);
     if (input.old_string != null) {
-      out += payloadField('Remove', `<div class="payload-diff-old">${esc(input.old_string)}</div>`);
-      out += payloadField('Insert', `<div class="payload-diff-new">${esc(input.new_string || '')}</div>`);
+      out += renderEditDiff(input.old_string, input.new_string || '', null);
     } else if (input.edits) {
-      // MultiEdit
       input.edits.forEach((e, i) => {
-        out += payloadField(`Edit ${i + 1} — Remove`, `<div class="payload-diff-old">${esc(e.old_string)}</div>`);
-        out += payloadField(`Edit ${i + 1} — Insert`, `<div class="payload-diff-new">${esc(e.new_string || '')}</div>`);
+        out += renderEditDiff(e.old_string, e.new_string || '', i);
       });
     }
     return out;
@@ -2946,7 +3431,7 @@ function renderOutputPayload(name, output) {
 let searchQuery = '';
 function applySearch(q) {
   searchQuery = q.toLowerCase().trim();
-  if (!lastRoot) return;
+  if (!lastRoots.length) return;
   applySearchToTree(lastRoot);
 }
 
@@ -3064,6 +3549,7 @@ let graphWrapMousedown = null;              // wrap mousedown (pan start)
 let graphSvgOver = null;                    // svg mouseover (tooltip)
 let graphSvgMove = null;                    // svg mousemove (tooltip)
 let graphSvgLeave = null;                   // svg mouseleave (tooltip)
+let graphSvgClick = null;                   // svg click (navigate to history)
 let graphLayout = null;                     // { totalW, totalH }
 let graphCurrentRootId = null;              // track session to reset transform on switch
 
@@ -3125,17 +3611,27 @@ function renderGraph() {
     }
     return false;
   }
+  function countAgentsLocal(n) {
+    return 1 + (n.children || []).reduce((s, c) => s + countAgentsLocal(c), 0);
+  }
+  const richestRoot = allRoots.reduce((best, r) =>
+    countAgentsLocal(r) > countAgentsLocal(best) ? r : best, allRoots[0]);
   const renderRoot = selected
     ? (allRoots.find(r => containsSession(r, selected.sessionId)) || allRoots[0])
-    : (lastRoot || allRoots[0]);
+    : richestRoot;
 
   // Reset transform when switching sessions
   const sessionChanged = renderRoot.sessionId !== graphCurrentRootId;
   if (sessionChanged) { graphCurrentRootId = renderRoot.sessionId; graphTx = 24; graphTy = 24; graphScale = 1; }
 
-  // Update title
+  // Update title & stats
   const titleEl = document.querySelector('.graph-title');
   if (titleEl) titleEl.textContent = `⬡ ${renderRoot.label}`;
+  const nodeCount = countAgentsLocal(renderRoot);
+  let totalGraphCost = 0;
+  (function sumCost(n) { totalGraphCost += n.costUsd || 0; (n.children || []).forEach(sumCost); })(renderRoot);
+  const statsEl = document.getElementById('graph-stats');
+  if (statsEl) statsEl.textContent = `${nodeCount} agent${nodeCount > 1 ? 's' : ''}${totalGraphCost > 0 ? ` · $${totalGraphCost.toFixed(3)}` : ''}`;
 
   const NODE_W = 220, NODE_H = 68, H_GAP = 36, V_GAP = 56;
 
@@ -3178,7 +3674,7 @@ function renderGraph() {
     const status     = l.node.status || 'running';
     const toolCount  = l.node.toolCalls?.length || 0;
     const compactCount = (l.node.compactions || []).length;
-    const dotColor   = status === 'running' ? '#d29922' : status === 'done' ? '#3fb950' : '#f85149';
+    const dotColor   = status === 'running' ? '#d29922' : status === 'done' ? '#3fb950' : status === 'cancelled' ? '#d29922' : '#f85149';
 
     // Plain-text cost safe for SVG (no HTML tags)
     const rawCost = l.node.costUsd > 0
@@ -3192,14 +3688,18 @@ function renderGraph() {
       ? 'inline agent'
       : `${toolCount} ${toolCount !== 1 ? 'tools' : 'tool'}${compactCount > 0 ? `  ·  ${compactCount} compact` : ''}`;
 
-    // Type badge text
+    // Type badge text — show type AND mode together
     let badgeText = '', badgeColor = '#8b949e';
-    if (isWorktree) { badgeText = '⎇ worktree'; badgeColor = '#2dd4bf'; }
-    else if (isSidechain) { badgeText = '⊕ inline'; badgeColor = '#c084fc'; }
-    else if (l.node.permissionMode && l.node.permissionMode !== 'default') {
-      const mb = MODE_BADGE[l.node.permissionMode];
-      badgeText  = mb ? mb.label : l.node.permissionMode;
-      badgeColor = mb ? mb.color.replace(/var\(--blue-soft\)/,'#79c0ff').replace(/var\(--yellow\)/,'#d29922').replace(/var\(--red\)/,'#f85149').replace(/var\(--purple\)/,'#c084fc').replace(/var\(--dim\)/,'#6e7681') : '#c084fc';
+    const resolveColor = c => c.replace(/var\(--blue-soft\)/,'#79c0ff').replace(/var\(--yellow\)/,'#d29922').replace(/var\(--red\)/,'#f85149').replace(/var\(--purple\)/,'#c084fc').replace(/var\(--orange\)/,'#d29922').replace(/var\(--dim\)/,'#6e7681').replace(/var\(--muted\)/,'#8b949e').replace(/var\(--teal\)/,'#2dd4bf');
+    const modeBadge = l.node.permissionMode && l.node.permissionMode !== 'default' ? MODE_BADGE[l.node.permissionMode] : null;
+    const modeLabel = modeBadge ? modeBadge.label : (l.node.permissionMode && l.node.permissionMode !== 'default' ? l.node.permissionMode : '');
+    const modeColor = modeBadge ? resolveColor(modeBadge.color) : '#c084fc';
+    if (isWorktree) {
+      badgeText = '⎇ worktree' + (modeLabel ? ` · ${modeLabel}` : ''); badgeColor = modeLabel ? modeColor : '#2dd4bf';
+    } else if (isSidechain) {
+      badgeText = '⊕ inline' + (modeLabel ? ` · ${modeLabel}` : ''); badgeColor = modeLabel ? modeColor : '#c084fc';
+    } else if (modeLabel) {
+      badgeText = modeLabel; badgeColor = modeColor;
     }
 
     // Pulse ring for running
@@ -3211,10 +3711,12 @@ function renderGraph() {
       : '';
 
     const nodeClass = `gnode ${status}${isWorktree ? ' worktree' : isSidechain ? ' sidechain' : ''}${isSelected ? ' selected' : ''}`;
-    const labelText = esc(l.node.label.slice(0, 26));
+    const labelText = esc(l.node.label.slice(0, 34));
+    const labelFull = esc(l.node.label);
 
     nodes += `
     <g class="${nodeClass}" data-graph-sid="${esc(l.node.sessionId)}">
+      <title>${labelFull}</title>
       <rect x="${l.x}" y="${l.y}" width="${NODE_W}" height="${nodeH}" rx="8"/>
       ${pulse}
       <circle cx="${l.x + 15}" cy="${l.y + 16}" r="5" fill="${dotColor}"/>
@@ -3308,6 +3810,20 @@ function renderGraph() {
   if (graphSvgOver)  { svg.removeEventListener('mouseover',  graphSvgOver);  }
   if (graphSvgMove)  { svg.removeEventListener('mousemove',  graphSvgMove);  }
   if (graphSvgLeave) { svg.removeEventListener('mouseleave', graphSvgLeave); }
+  if (graphSvgClick) { svg.removeEventListener('click',      graphSvgClick); }
+
+  // Click → navigate to History detail for clicked agent
+  graphSvgClick = e => {
+    const g = e.target.closest('[data-graph-sid]');
+    if (!g) return;
+    const sid = g.dataset.graphSid;
+    selected = { type: 'agent', sessionId: sid };
+    selectedFromHistory = true;
+    showView('history');
+    loadHistorySession(sid);
+    renderGraph();
+  };
+  svg.addEventListener('click', graphSvgClick);
 
   // Tooltip
   graphSvgOver = e => {
@@ -3428,10 +3944,13 @@ function showModeToast(sessionLabel, oldMode, newMode) {
 let knownAgentCount = 0;
 function maybeAutoOpenGraph(root) {
   if (!root) return;
-  function countAgents(n) {
-    return 1 + (n.children || []).reduce((s, c) => s + countAgents(c), 0);
+  // Only count real agents (not synthetic sidechains) to avoid spurious auto-opens
+  function countRealAgents(n) {
+    return (n.isSidechain ? 0 : 1) + (n.children || []).reduce((s, c) => s + countRealAgents(c), 0);
   }
-  const count = countAgents(root);
+  // Count agents across ALL roots, not just the most recent one
+  const allRoots = (lastRoots && lastRoots.length) ? lastRoots : (root ? [root] : []);
+  const count = allRoots.reduce((s, r) => s + countRealAgents(r), 0);
   if (count > 1 && count !== knownAgentCount && !graphOpen) {
     knownAgentCount = count;
     openGraph();
